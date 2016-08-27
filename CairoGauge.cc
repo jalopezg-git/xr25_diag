@@ -23,6 +23,7 @@ bool CairoGauge::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
   // setup
   context->set_antialias(Cairo::ANTIALIAS_SUBPIXEL);
   context->translate(width / 2, height / 2);
+  context->transform(_transform_matrix);
   context->set_line_cap(Cairo::LINE_CAP_ROUND);
   context->set_line_width(2);
   context->set_font_size(CAIROGAUGE_FONT_SIZE);

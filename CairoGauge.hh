@@ -32,6 +32,7 @@ protected:
   sample_fn_t _sample_fn;
   double _value, _value_max, _tick_step;
   Gdk::RGBA _face_rgba;
+  Cairo::Matrix _transform_matrix;
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context> &context) override;
 
@@ -44,8 +45,12 @@ public:
    */
   CairoGauge(std::string text, sample_fn_t fn, double _M, double step = 0)
       : _text(text), _sample_fn(fn), _value(0), _value_max(_M), _tick_step(step),
-        _face_rgba(get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL)) {}
+        _face_rgba(get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL)),
+        _transform_matrix(Cairo::identity_matrix()) {}
+  CairoGauge(const CairoGauge &_o) : CairoGauge(_o._text, _o._sample_fn, _o._value_max, _o._tick_step) {}
   virtual ~CairoGauge() {}
+
+  void set_transform_matrix(Cairo::Matrix &_m) { _transform_matrix = _m; }
 
   /** Call the @a fn function (constructor argument) and update gauge with
    * the returned value.
