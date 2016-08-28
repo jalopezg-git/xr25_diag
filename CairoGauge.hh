@@ -45,8 +45,9 @@ public:
    */
   CairoGauge(std::string text, sample_fn_t fn, double _M, double step = 0)
       : _text(text), _sample_fn(fn), _value(0), _value_max(_M), _tick_step(step),
-        _face_rgba(get_style_context()->get_color(Gtk::STATE_FLAG_NORMAL)),
-        _transform_matrix(Cairo::identity_matrix()) {}
+        _transform_matrix(Cairo::identity_matrix()) {
+    get_style_context()->lookup_color("theme_text_color", _face_rgba);
+  }
   CairoGauge(const CairoGauge &_o) : CairoGauge(_o._text, _o._sample_fn, _o._value_max, _o._tick_step) {}
   virtual ~CairoGauge() {}
 

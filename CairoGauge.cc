@@ -35,14 +35,14 @@ bool CairoGauge::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
   if (_tick_step != 0)
     for (double i = 0, _r1 = 0.78 * radius, _r2 = 0.82 * radius, _r3 = 0.9 * radius; i <= _value_max; i += _tick_step) {
       double angle = angle_of(i);
-      std::string label = std::to_string(i);
+      std::string label = std::to_string(static_cast<int>(i));
 
-      context->move_to(_r1 * cos(angle), _r1 * sin(angle));
-      context->line_to(_r2 * cos(angle), _r2 * sin(angle));
+      context->move_to(_r1 * cos(angle), _r1 * -sin(angle));
+      context->line_to(_r2 * cos(angle), _r2 * -sin(angle));
       context->stroke();
 
       context->get_text_extents(label, TE);
-      context->move_to((_r3 * cos(angle)) - TE.width / 2, _r3 * sin(angle));
+      context->move_to((_r3 * cos(angle)) - TE.width / 2, _r3 * -sin(angle));
       context->show_text(label);
     }
   context->get_text_extents(_text, TE);
@@ -54,7 +54,7 @@ bool CairoGauge::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
   context->set_line_width(3);
   context->set_source_rgba(1, 0.2, 0.2, 1);
   context->move_to(0, 0);
-  context->line_to(0.76 * radius * cos(angle), 0.76 * radius * sin(angle));
+  context->line_to(0.76 * radius * cos(angle), -0.76 * radius * sin(angle));
   context->stroke();
   context->arc(0, 0, 0.03 * radius, 0, 2 * M_PI);
   context->fill();

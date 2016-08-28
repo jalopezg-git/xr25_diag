@@ -110,8 +110,6 @@ public:
   virtual bool parse_frame(const unsigned char c[], int length, XR25Frame &fra) = 0;
 };
 
-#define ARRAY_SIZE(_a) (unsigned int)(sizeof(_a) / sizeof(_a[0]))
-
 class XR25StreamReader {
 private:
   typedef std::function<void(const unsigned char[], int, XR25Frame &)> post_parse_t;

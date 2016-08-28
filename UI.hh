@@ -141,7 +141,7 @@ public:
                                                       this->_last_recv = fra;
                                                       this->_last_recv_mutex.unlock();
                                                     }),
-        _fp(_p) {
+        _fp(_p), _last_recv() {
     _builder->get_widget("mw_hb_sync_err", _hb_sync_err);
     _builder->get_widget("mw_hb_fra_s", _hb_fra_s);
     _builder->get_widget("mw_hb_is_sync", _hb_is_sync);
@@ -152,7 +152,7 @@ public:
     for (int i = 0; i < F_COUNT; i++)
       _builder->get_widget("mw_f" + std::to_string(i), _flag[i]);
   }
-  ~UI() { _xr25reader.stop(); }
+  ~UI() {}
 
 #define UI_UPDATE_PAGE_HZ 16
 #define UI_UPDATE_HEADER_HZ 1
@@ -183,12 +183,14 @@ public:
     Gtk::CheckButton *hud = nullptr;
     _builder->get_widget("mw_hud", hud);
     hud->signal_toggled().connect([hud, dash_text, this]() {
-      auto m = hud->get_active() ? Cairo::Matrix{-1, 0, 0, -1, 0, 0} : Cairo::identity_matrix();
+      auto m = hud->get_active() ? Cairo::Matrix{1, 0, 0, -1, 0, 0} : Cairo::identity_matrix();
       for (auto &i : _gauge)
         i.set_transform_matrix(m);
-      dash_text->get_pango_context()->set_matrix(hud->get_active() ? Pango::Matrix{-1, 0, 0, -1, 0, 0}
+      dash_text->get_pango_context()->set_matrix(hud->get_active() ? Pango::Matrix{1, 0, 0, -1, 0, 0}
                                                                    : Pango::Matrix{1, 0, 0, 1, 0, 0});
     });
+
+    _xr25reader.start(const_cast<XR25FrameParser &>(_fp));
 
     Gtk::Window *main_window = nullptr;
     _builder->get_widget("main_window", main_window);
