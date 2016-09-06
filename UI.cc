@@ -14,8 +14,6 @@
  */
 
 #include "UI.hh"
-#include <iomanip>
-#include <sstream>
 
 void UI::update_page_diagnostic(XR25Frame &fra) {
   auto update_entry = [&](unsigned index, auto data) { _entry[index]->set_text(std::to_string(data)); };
@@ -80,10 +78,4 @@ void UI::update_page_diagnostic(XR25Frame &fra) {
 void UI::update_page_dashboard(XR25Frame &fra) {
   for (auto &i : _gauge)
     i.update(&fra);
-
-  std::ostringstream oss;
-  oss << std::setw(4) << "MAP   (mbar) = " << fra.map << std::endl
-      << "Air temp (C) = " << fra.temp_air << std::endl
-      << "Lambda  (mV) = " << fra.lambdavalue;
-  _dash_tb->set_text(oss.str());
 }
