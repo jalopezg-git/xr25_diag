@@ -68,8 +68,8 @@ void XR25StreamReader::read_frames(XR25FrameParser &parser) {
     }
 
     if (_synchronized)
-      static_cast<unsigned>(p - frame) < std::extent<decltype(frame)>::value ? *p++ = c : _synchronized = 0,
-                                                                               _sync_err_count++;
+      static_cast<unsigned>(p - frame) < std::extent<decltype(frame)>::value ? *p++ = c
+                                                                             : (_synchronized = 0, _sync_err_count++);
   }
   pthread_cleanup_pop(1);
 }

@@ -16,6 +16,7 @@
 #ifndef PARSERFACTORY_HH
 #define PARSERFACTORY_HH
 
+#include "Fenix3Parser.hh"
 #include "XR25streamreader.hh"
 #include <functional>
 #include <memory>
