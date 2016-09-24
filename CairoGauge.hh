@@ -31,10 +31,18 @@ protected:
   std::string _text;
   sample_fn_t _sample_fn;
   double _value, _value_max, _tick_step;
-  Gdk::RGBA _face_rgba;
+  size_t _label_step;
   Cairo::Matrix _transform_matrix;
+  Cairo::RefPtr<Cairo::Surface> _background;
+
+  void draw_background(void);
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context> &context) override;
+  void on_size_allocate(Gtk::Allocation &allocation) override {
+    Gtk::Widget::on_size_allocate(allocation);
+    if (_background)
+      draw_background();
+  }
 
 public:
   /** Construct a CairoGauge object
@@ -42,16 +50,18 @@ public:
    * @param fn std::function<double(void *)> that returns the next value
    * @param _M Maximum value of any sample
    * @param step Draw ticks using @a step increments
+   * @param l_step Draw labels each @a l_step ticks
    */
-  CairoGauge(std::string text, sample_fn_t fn, double _M, double step = 0)
-      : _text(text), _sample_fn(fn), _value(0), _value_max(_M), _tick_step(step),
-        _transform_matrix(Cairo::identity_matrix()) {
-    get_style_context()->lookup_color("theme_text_color", _face_rgba);
-  }
+  CairoGauge(std::string text, sample_fn_t fn, double _M, double step = 0, size_t l_step = 1)
+      : _text(text), _sample_fn(fn), _value(0), _value_max(_M), _tick_step(step), _label_step(l_step),
+        _transform_matrix(Cairo::identity_matrix()) {}
   CairoGauge(const CairoGauge &_o) : CairoGauge(_o._text, _o._sample_fn, _o._value_max, _o._tick_step) {}
   virtual ~CairoGauge() {}
 
-  void set_transform_matrix(Cairo::Matrix &_m) { _transform_matrix = _m; }
+  void set_transform_matrix(Cairo::Matrix &_m) {
+    _transform_matrix = _m;
+    queue_draw();
+  }
 
   /** Call the @a fn function (constructor argument) and update gauge with
    * the returned value.

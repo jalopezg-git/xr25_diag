@@ -99,13 +99,13 @@ private:
 
   enum { G_RPM = 0, G_SPD_KM_H, GTEMP_WATER, G_BATT_V, G_MAP, GTEMP_AIR, G_LAMBDA_V, G_COUNT };
   CairoGauge _gauge[G_COUNT] = {
-      {"RPM", [](void *p) { return static_cast<XR25Frame *>(p)->rpm; }, 7000, 1000},
-      {"km/h", [](void *p) { return static_cast<XR25Frame *>(p)->spd_km_h; }, 240, 20},
-      {"Temp (C)", [](void *p) { return static_cast<XR25Frame *>(p)->temp_water; }, 120, 30},
-      {"Battery (V)", [](void *p) { return static_cast<XR25Frame *>(p)->battvalue; }, 18, 2},
-      {"MAP (mbar)", [](void *p) { return static_cast<XR25Frame *>(p)->map; }, 1020, 255},
-      {"Air Temp(C)", [](void *p) { return static_cast<XR25Frame *>(p)->temp_air; }, 90, 30},
-      {"Lambda (mV)", [](void *p) { return static_cast<XR25Frame *>(p)->lambdavalue; }, 1530, 255},
+      {"RPM", [](void *p) { return static_cast<XR25Frame *>(p)->rpm; }, 7000, 500, 2},
+      {"km/h", [](void *p) { return static_cast<XR25Frame *>(p)->spd_km_h; }, 240, 10, 2},
+      {"Temp (C)", [](void *p) { return static_cast<XR25Frame *>(p)->temp_water; }, 120, 30, 1},
+      {"Battery (V)", [](void *p) { return static_cast<XR25Frame *>(p)->battvalue; }, 18, 1, 2},
+      {"MAP (mbar)", [](void *p) { return static_cast<XR25Frame *>(p)->map; }, 1020, 255, 1},
+      {"Air Temp(C)", [](void *p) { return static_cast<XR25Frame *>(p)->temp_air; }, 90, 30, 1},
+      {"Lambda (mV)", [](void *p) { return static_cast<XR25Frame *>(p)->lambdavalue; }, 1530, 255, 1},
   };
 
   void update_page_diagnostic(XR25Frame &);
