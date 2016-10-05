@@ -79,3 +79,8 @@ void UI::update_page_dashboard(XR25Frame &fra) {
   for (auto &i : _gauge)
     i.update(&fra);
 }
+
+void UI::update_page_plots(XR25Frame &fra) {
+  for (auto &i : _plot)
+    i.update();
+}

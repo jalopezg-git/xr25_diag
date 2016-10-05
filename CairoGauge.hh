@@ -55,7 +55,8 @@ public:
   CairoGauge(std::string text, sample_fn_t fn, double _M, double step = 0, size_t l_step = 1)
       : _text(text), _sample_fn(fn), _value(0), _value_max(_M), _tick_step(step), _label_step(l_step),
         _transform_matrix(Cairo::identity_matrix()) {}
-  CairoGauge(const CairoGauge &_o) : CairoGauge(_o._text, _o._sample_fn, _o._value_max, _o._tick_step) {}
+  CairoGauge(const CairoGauge &_o)
+      : CairoGauge(_o._text, _o._sample_fn, _o._value_max, _o._tick_step, _o._label_step) {}
   virtual ~CairoGauge() {}
 
   void set_transform_matrix(Cairo::Matrix &_m) {
