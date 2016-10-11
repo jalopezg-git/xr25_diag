@@ -28,6 +28,7 @@
  * @param fra Reference to the parsed frame
  */
 void XR25StreamReader::frame_recv(XR25FrameParser &parser, const unsigned char c[], int length, XR25Frame &fra) {
+  this->_fra_count++;
   parser.parse_frame(c, length, fra);
   if (_post_parse)
     _post_parse(c, length, fra);
@@ -35,7 +36,7 @@ void XR25StreamReader::frame_recv(XR25FrameParser &parser, const unsigned char c
 
 void XR25StreamReader::read_frames(XR25FrameParser &parser) {
   unsigned char frame[128] = {0xff, 0x00}, c, *p = &frame[1];
-  XR25Frame fra;
+  XR25Frame fra{};
   std::condition_variable term;
   std::mutex term_m;
   std::atomic_int count(0);

@@ -36,6 +36,7 @@ private:
 
   Gtk::Label *_hb_sync_err, *_hb_fra_s;
   Gtk::Image *_hb_is_sync;
+  Gtk::HeaderBar *_hb;
   Gtk::Notebook *_notebook;
 
   enum EntryWidgets {
@@ -93,6 +94,7 @@ private:
     F_FAULT_EGR, /* 30 */
     F_FAULT_IDLE_REG,
     F_FAULT_INJECTORS,
+    F_OUT_LAMBDA_LOOP,
     F_COUNT, // add new elements before this line
   };
 
@@ -196,6 +198,7 @@ private:
     _hb_sync_err->set_text(std::to_string(_xr25reader.get_sync_err_count()));
     _hb_fra_s->set_text(std::to_string(_xr25reader.get_frames_per_sec()));
     _hb_is_sync->set_from_icon_name(_xr25reader.is_synchronized() ? "gtk-yes" : "gtk-no", Gtk::ICON_SIZE_BUTTON);
+    _hb->set_subtitle("Frame count: " + std::to_string(_xr25reader.get_fra_count()));
     return TRUE;
   }
 
@@ -216,6 +219,7 @@ public:
     _builder->get_widget("mw_hb_sync_err", _hb_sync_err);
     _builder->get_widget("mw_hb_fra_s", _hb_fra_s);
     _builder->get_widget("mw_hb_is_sync", _hb_is_sync);
+    _builder->get_widget("mw_hb", _hb);
     _builder->get_widget("mw_notebook", _notebook);
 
     for (int i = 0; i < E_COUNT; i++)
