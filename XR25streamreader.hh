@@ -100,6 +100,12 @@ struct XR25Frame {
   int spd_km_h;
 };
 
+/* Equivalent to '(x & bit1) ? bit2 : 0' but this is faster;
+ * borrowed from include/linux/mman.h: _calc_vm_trans.
+ */
+#define remap_bit(x, bit1, bit2)                                                                                       \
+  ((bit1) <= (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) : ((x) & (bit1)) / ((bit1) / (bit2)))
+
 class XR25FrameParser {
 public:
   /** Parses a frame and return a 'struct XR25Frame'.
