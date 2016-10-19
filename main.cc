@@ -13,10 +13,11 @@
  * GNU General Public License for more details.
  */
 
-#include "ParserFactory.hh"
+#include "Parsers.hh"
 #include "UI.hh"
 #include "XR25streamreader.hh"
 #include "tee_stdio_filebuf.hh"
+
 #include <asm/termbits.h>
 #include <cstdlib>
 #include <cstring>

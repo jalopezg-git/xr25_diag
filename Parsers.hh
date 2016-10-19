@@ -1,4 +1,4 @@
-/* ParserFactory.hh - instantiate objects of type 'XXXparser'
+/* Parsers.hh - Parse Siemens Fenix/Renix diagnostic frames
  *
  * Copyright (C) Javier Lopez-Gomez, 2016
  *
@@ -13,25 +13,42 @@
  * GNU General Public License for more details.
  */
 
-#ifndef PARSERFACTORY_HH
-#define PARSERFACTORY_HH
+#ifndef PARSERS_HH
+#define PARSERS_HH
 
-#include "Fenix1Parser.hh"
-#include "Fenix3Parser.hh"
-#include "Fenix52BParser.hh"
 #include "XR25streamreader.hh"
+
 #include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
+/// Parse Siemens Fenix1 frames.  This parser is not tested; if you test it, please report feedback!
+class Fenix1Parser : public XR25FrameParser {
+public:
+  bool parse_frame(const unsigned char c[], int length, XR25Frame &fra) override;
+};
+
+/// Parse Siemens Fenix3 frames.
+class Fenix3Parser : public XR25FrameParser {
+public:
+  bool parse_frame(const unsigned char c[], int length, XR25Frame &fra) override;
+};
+
+/// Parse Siemens Fenix 52-byte frames sent, e.g. by the ECU mounted on the Renault R21 2.0TXI.
+/// This parser is incomplete; if you know the meaning of the remaining bytes, please contribute!
+class Fenix52BParser : public XR25FrameParser {
+public:
+  bool parse_frame(const unsigned char c[], int length, XR25Frame &fra) override;
+};
+
+/// Helper class to construct a `FenixXyzParser` by name
 class ParserFactory {
 public:
   typedef std::shared_ptr<XR25FrameParser> parser_ptr_t;
 
 private:
   typedef std::unordered_map<std::string, std::function<parser_ptr_t()>> ctor_funcs_t;
-
   static const ctor_funcs_t _ctor_funcs;
 
 public:
@@ -44,12 +61,4 @@ public:
     #_typename, []() { return std::make_shared<_typename>(); }                                                         \
   }
 
-/** Use the REGISTER_TYPE(xxx) macro to add new parser types here.
- */
-const ParserFactory::ctor_funcs_t ParserFactory::_ctor_funcs = {
-    REGISTER_TYPE(Fenix3Parser),
-    REGISTER_TYPE(Fenix1Parser),
-    REGISTER_TYPE(Fenix52BParser),
-};
-
-#endif /* PARSERFACTORY_HH */
+#endif /* PARSERS_HH */
