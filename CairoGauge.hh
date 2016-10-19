@@ -22,10 +22,12 @@
 #include <gtkmm.h>
 #include <string>
 
-#define CAIROGAUGE_FONT_SIZE 14
-
 class CairoGauge : public Gtk::DrawingArea {
 protected:
+  // TODO: make this a configurable parameter
+  /// The default font size for this widget
+  static constexpr unsigned CAIROGAUGE_FONT_SIZE = 14;
+
   typedef std::function<double(void *)> sample_fn_t;
 
   std::string _text;

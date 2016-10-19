@@ -26,9 +26,9 @@ const ParserFactory::ctor_funcs_t ParserFactory::_ctor_funcs = {
 bool Fenix1Parser::parse_frame(const unsigned char c[], int length, XR25Frame &fra) {
   fra.program_vrsn = c[2];
   fra.calib_vrsn = c[3];
-  fra.in_flags = remap_bit(c[4], 0x02, IN_PARKED) | remap_bit(c[4], 0x04, IN_AC_REQUEST) |
-                 remap_bit(c[4], 0x08, IN_THROTTLE_0) | remap_bit(c[4], 0x10, IN_THROTTLE_1) |
-                 remap_bit(c[4], 0x20, IN_AC_COMPRES);
+  fra.in_flags = (XR25InFlags)(remap_bit(c[4], 0x02, IN_PARKED) | remap_bit(c[4], 0x04, IN_AC_REQUEST) |
+                               remap_bit(c[4], 0x08, IN_THROTTLE_0) | remap_bit(c[4], 0x10, IN_THROTTLE_1) |
+                               remap_bit(c[4], 0x20, IN_AC_COMPRES));
   // fra.out_flags     not sent?;
   fra.map = 4 * c[5];
   fra.rpm = ({
@@ -36,13 +36,13 @@ bool Fenix1Parser::parse_frame(const unsigned char c[], int length, XR25Frame &f
     tmp ? (0x00e4e1c0 / tmp) : 0;
   });
   fra.throttle = c[22] / 2.55;
-  fra.fault_flags_1 = c[19];
+  fra.fault_flags_1 = (XR25FaultFlags1)c[19];
   fra.eng_pinging = c[14];
   fra.injection_us = 2 * ((c[13] << 8) | c[12]);
   fra.advance = c[15];
-  fra.fault_flags_0 = c[27];
+  fra.fault_flags_0 = (XR25FaultFlags0)c[27];
   fra.fault_fugitive = c[26];
-  fra.fault_flags_2 = c[18];
+  fra.fault_flags_2 = (XR25FaultFlags2)c[18];
   fra.temp_water = (c[6] / 1.6) - 40;
   fra.temp_air = (c[7] / 1.6) - 40;
   fra.battvalue = (c[8] / 32.0) + 8;
@@ -59,23 +59,23 @@ bool Fenix1Parser::parse_frame(const unsigned char c[], int length, XR25Frame &f
 bool Fenix3Parser::parse_frame(const unsigned char c[], int length, XR25Frame &fra) {
   fra.program_vrsn = c[2];
   fra.calib_vrsn = c[3];
-  fra.in_flags = c[4];
-  fra.out_flags = c[5];
+  fra.in_flags = (XR25InFlags)c[4];
+  fra.out_flags = (XR25OutFlags)c[5];
   fra.map = 4 * c[6];
   fra.rpm = ({
     int tmp = (c[8] << 8) | c[7];
     tmp ? (0x00e4e1c0 / tmp) : 0;
   });
   fra.throttle = c[9] / 2.55;
-  fra.fault_flags_1 = c[10];
+  fra.fault_flags_1 = (XR25FaultFlags1)c[10];
   fra.eng_pinging = c[11];
   fra.injection_us = 2 * ((c[13] << 8) | c[12]);
   fra.advance = c[14];
-  fra.fault_flags_0 = c[16];
+  fra.fault_flags_0 = (XR25FaultFlags0)c[16];
   fra.fault_fugitive = c[17];
-  fra.fault_flags_2 = c[18];
-  fra.fault_flags_4 = c[19];
-  fra.fault_flags_3 = c[20];
+  fra.fault_flags_2 = (XR25FaultFlags2)c[18];
+  fra.fault_flags_4 = (XR25FaultFlags4)c[19];
+  fra.fault_flags_3 = (XR25FaultFlags3)c[20];
   fra.temp_water = (c[21] / 1.6) - 40;
   fra.temp_air = (c[22] / 1.6) - 40;
   fra.battvalue = (c[23] / 32.0) + 8;
@@ -93,8 +93,8 @@ bool Fenix3Parser::parse_frame(const unsigned char c[], int length, XR25Frame &f
 bool Fenix52BParser::parse_frame(const unsigned char c[], int length, XR25Frame &fra) {
   fra.program_vrsn = c[2];
   fra.calib_vrsn = c[3];
-  fra.in_flags = remap_bit(c[6], 0x80, IN_THROTTLE_0) | remap_bit(c[6], 0x40, IN_THROTTLE_1);
-  fra.out_flags = remap_bit(c[5], 0x80, OUT_LAMBDA_LOOP);
+  fra.in_flags = (XR25InFlags)(remap_bit(c[6], 0x80, IN_THROTTLE_0) | remap_bit(c[6], 0x40, IN_THROTTLE_1));
+  fra.out_flags = (XR25OutFlags)(remap_bit(c[5], 0x80, OUT_LAMBDA_LOOP));
   fra.map = 4 * c[24];
   fra.rpm = ({
     int tmp = (c[20] << 8) | c[19];

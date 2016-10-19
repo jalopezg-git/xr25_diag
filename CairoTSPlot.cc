@@ -15,6 +15,9 @@
 
 #include "CairoTSPlot.hh"
 
+const Gdk::RGBA CairoTSPlot::RGBA_DEFAULT{"#2e7db3"};
+const Gdk::RGBA CairoTSPlot::RGBA_ALERT{"#cc0d29"};
+
 void CairoTSPlot::draw_background(void) {
   const int width = get_allocation().get_width(), height = get_allocation().get_height(), y_0 = height - MARGIN_BOTTOM;
   Cairo::TextExtents TE;
@@ -89,7 +92,7 @@ bool CairoTSPlot::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
 
   // horizontal axis scale
   auto timepoint = std::chrono::steady_clock::now();
-  for (int i = 0; i < NUM_POINTS; ++i) {
+  for (unsigned i = 0; i < NUM_POINTS; ++i) {
     struct value_struct &_s = _circbuf_get(_data, data_tail - i);
     if (_s.has_timepoint) {
       std::chrono::duration<double> diff = timepoint - _s.timepoint;
@@ -108,11 +111,11 @@ bool CairoTSPlot::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
   }
 
   // draw plot
-  Gdk::Cairo::set_source_rgba(context, (is_alert_region = _circbuf_get(_data, data_tail).is_alerted) ? _RGBA_ALERT
-                                                                                                     : _RGBA_DEFAULT);
+  Gdk::Cairo::set_source_rgba(context, (is_alert_region = _circbuf_get(_data, data_tail).is_alerted) ? RGBA_ALERT
+                                                                                                     : RGBA_DEFAULT);
   context->set_line_width(2);
   context->move_to(x_offset, y_0 - yoffset_of(_circbuf_get(_data, data_tail).value));
-  for (int i = 1; i < NUM_POINTS; ++i) {
+  for (unsigned i = 1; i < NUM_POINTS; ++i) {
     struct value_struct &val = _circbuf_get(_data, data_tail - i);
     if (val.value == HUGE_VAL)
       break;
@@ -120,7 +123,7 @@ bool CairoTSPlot::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
     context->line_to(x_offset - (x_step * i), y_0 - yoffset_of(val.value));
     if (is_alert_region != val.is_alerted) { // set a different color for alerted region
       context->stroke();
-      Gdk::Cairo::set_source_rgba(context, (is_alert_region = val.is_alerted) ? _RGBA_ALERT : _RGBA_DEFAULT);
+      Gdk::Cairo::set_source_rgba(context, (is_alert_region = val.is_alerted) ? RGBA_ALERT : RGBA_DEFAULT);
       context->move_to(x_offset - (x_step * i), y_0 - yoffset_of(val.value));
     }
   }

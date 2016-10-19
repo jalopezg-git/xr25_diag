@@ -23,6 +23,55 @@
 #include <pthread.h>
 #include <thread>
 
+enum XR25InFlags : unsigned char {
+  IN_AC_REQUEST = 0x02,
+  IN_AC_COMPRES = 0x04,
+  IN_THROTTLE_0 = 0x08,
+  IN_PARKED = 0x10,
+  IN_THROTTLE_1 = 0x20,
+};
+
+enum XR25OutFlags : unsigned char {
+  OUT_PUMP_ENABLE = 0x01,
+  OUT_IDLE_REGULATION = 0x02,
+  OUT_WASTEGATE_REG = 0x04,
+  OUT_LAMBDA_LOOP = 0x08,
+  OUT_EGR_ENABLE = 0x20,
+  OUT_CHECK_ENGINE = 0x80,
+};
+
+enum XR25FaultFlags0 : unsigned char {
+  FAULT_WATER_OPEN_C = 0x01,
+  FAULT_WATER_SHORT_C = 0x02,
+  FAULT_AIR_OPEN_C = 0x04,
+  FAULT_AIR_SHORT_C = 0x08,
+  FAULT_TPS_LOW = 0x40,
+  FAULT_TPS_HIGH = 0x80,
+};
+
+enum XR25FaultFlags1 : unsigned char {
+  FAULT_MAP = 0x04,
+  FAULT_SPD_SENSOR = 0x10,
+  FAULT_LAMBDA_TMP = 0x20,
+  FAULT_LAMBDA = 0x80,
+};
+
+enum XR25FaultFlags2 : unsigned char {
+  FAULT_EEPROM_CHECKSUM = 0x20,
+  FAULT_PROG_CHECKSUM = 0x80,
+};
+
+enum XR25FaultFlags3 : unsigned char {
+  FAULT_INJECTORS = 0x10,
+};
+
+enum XR25FaultFlags4 : unsigned char {
+  FAULT_PUMP = 0x01,
+  FAULT_WASTEGATE = 0x04,
+  FAULT_EGR = 0x08,
+  FAULT_IDLE_REG = 0x20,
+};
+
 /* XR25 frames start with 0xff 0x00; 0xff ocurrences in the frame sent on the
  * wire as 0xff 0xff.
  *
@@ -36,57 +85,26 @@ struct XR25Frame {
   unsigned char program_vrsn;
   unsigned char calib_vrsn;
 
-  unsigned char in_flags;
-#define IN_AC_REQUEST 0x02
-#define IN_AC_COMPRES 0x04
-#define IN_THROTTLE_0 0x08
-#define IN_PARKED 0x10
-#define IN_THROTTLE_1 0x20
-
-  unsigned char out_flags;
-#define OUT_PUMP_ENABLE 0x01
-#define OUT_IDLE_REGULATION 0x02
-#define OUT_WASTEGATE_REG 0x04
-#define OUT_LAMBDA_LOOP 0x08
-#define OUT_EGR_ENABLE 0x20
-#define OUT_CHECK_ENGINE 0x80
+  XR25InFlags in_flags;
+  XR25OutFlags out_flags;
 
   int map;
   int rpm;
   int throttle;
 
-  unsigned char fault_flags_1;
-#define FAULT_MAP 0x04
-#define FAULT_SPD_SENSOR 0x10
-#define FAULT_LAMBDA_TMP 0x20
-#define FAULT_LAMBDA 0x80
+  XR25FaultFlags1 fault_flags_1;
 
   unsigned char eng_pinging;
   int injection_us;
   int advance;
 
-  unsigned char fault_flags_0;
-#define FAULT_WATER_OPEN_C 0x01
-#define FAULT_WATER_SHORT_C 0x02
-#define FAULT_AIR_OPEN_C 0x04
-#define FAULT_AIR_SHORT_C 0x08
-#define FAULT_TPS_LOW 0x40
-#define FAULT_TPS_HIGH 0x80
+  XR25FaultFlags0 fault_flags_0;
 
   unsigned char fault_fugitive;
 
-  unsigned char fault_flags_2;
-#define FAULT_EEPROM_CHECKSUM 0x20
-#define FAULT_PROG_CHECKSUM 0x80
-
-  unsigned char fault_flags_4;
-#define FAULT_PUMP 0x01
-#define FAULT_WASTEGATE 0x04
-#define FAULT_EGR 0x08
-#define FAULT_IDLE_REG 0x20
-
-  unsigned char fault_flags_3;
-#define FAULT_INJECTORS 0x10
+  XR25FaultFlags2 fault_flags_2;
+  XR25FaultFlags4 fault_flags_4;
+  XR25FaultFlags3 fault_flags_3;
 
   float temp_water;
   float temp_air;

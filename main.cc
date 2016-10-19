@@ -40,13 +40,14 @@ struct ParamsStruct {
                                 * frames to */
 };
 
+static constexpr const char *DEV_PATH_PREFIX = "/dev/";
+
 /** Get port configuration from user.
  * @param b Gtk::Builder object to use; 'conf_dialog' is a GtkDialog req-
  *     uesting configuration from user
  * @param params Returned parameters struct
  */
 bool get_port_conf(Glib::RefPtr<Gtk::Builder> b, ParamsStruct &params) {
-#define DEV_PATH "/dev/"
   Gtk::Dialog *conf_dialog;
   Gtk::ComboBoxText *dev_path, *parser_t;
   Gtk::Entry *tty_conf, *save_pathname;
@@ -58,12 +59,12 @@ bool get_port_conf(Glib::RefPtr<Gtk::Builder> b, ParamsStruct &params) {
   b->get_widget("cd_save_pathname", save_pathname);
   b->get_widget("cd_save_as", save_as);
 
-  DIR *dirp = opendir(DEV_PATH);
+  DIR *dirp = opendir(DEV_PATH_PREFIX);
   struct dirent *dirent;
   for (std::regex re("tty(S|ACM|USB)[0-9]+|stdin"); (dirent = readdir(dirp)) || closedir(dirp);) {
     std::string d_name(dirent->d_name);
     if (std::regex_match(d_name, re))
-      dev_path->append(DEV_PATH + d_name);
+      dev_path->append(DEV_PATH_PREFIX + d_name);
   }
   dev_path->set_active(0);
 

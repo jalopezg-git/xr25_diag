@@ -19,6 +19,7 @@
 #include "CairoGauge.hh"
 #include "CairoTSPlot.hh"
 #include "XR25streamreader.hh"
+
 #include <gtkmm.h>
 #include <mutex>
 #include <pangomm/context.h>
@@ -203,6 +204,11 @@ private:
   }
 
 public:
+  /// The update frequency for notebook pages in the main window
+  static constexpr unsigned UI_UPDATE_PAGE_HZ = 16;
+  /// The update frequency for widgets embedded in the window decoration
+  static constexpr unsigned UI_UPDATE_HEADER_HZ = 1;
+
   UI(Glib::RefPtr<Gtk::Application> _a, Glib::RefPtr<Gtk::Builder> _b, std::istream &_is, const XR25FrameParser &_p)
       : _application(_a), _builder(_b), _xr25reader(_is,
                                                     [this](const unsigned char c[], int l, XR25Frame &fra) {
@@ -229,8 +235,6 @@ public:
   }
   ~UI() {}
 
-#define UI_UPDATE_PAGE_HZ 16
-#define UI_UPDATE_HEADER_HZ 1
   void run() {
     Gtk::Grid *dash_grid, *plot_grid;
     _builder->get_widget("mw_dash_grid", dash_grid);

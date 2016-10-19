@@ -24,20 +24,24 @@
 #include <gtkmm.h>
 #include <string>
 
-#define CAIROTSPLOT_FONT_SIZE 14
-#define MARGIN_LEFT 4
-#define MARGIN_TOP 40
-#define MARGIN_RIGHT 32
-#define MARGIN_BOTTOM 32
-#define _RGBA_DEFAULT                                                                                                  \
-  Gdk::RGBA { "#2e7db3" }
-#define _RGBA_ALERT                                                                                                    \
-  Gdk::RGBA { "#cc0d29" }
-//  NUM_POINTS should be a power-of-2
-#define NUM_POINTS 512
-
 class CairoTSPlot : public Gtk::DrawingArea {
 protected:
+  // TODO: make all these configurable parameters
+  /// The default font size for this widget
+  static constexpr unsigned CAIROTSPLOT_FONT_SIZE = 14;
+  /// Margins
+  static constexpr unsigned MARGIN_LEFT = 4;
+  static constexpr unsigned MARGIN_TOP = 40;
+  static constexpr unsigned MARGIN_RIGHT = 32;
+  static constexpr unsigned MARGIN_BOTTOM = 32;
+  /// Default and alerted-region colors
+  static const Gdk::RGBA RGBA_DEFAULT;
+  static const Gdk::RGBA RGBA_ALERT;
+
+  /// The CairoTSPlot widget stores historical values in a circular buffer of this size
+  static constexpr unsigned NUM_POINTS = 512;
+  static_assert((NUM_POINTS & (NUM_POINTS - 1)) == 0, "NUM_POINTS should be a power-of-two");
+
   typedef std::function<double(void *, bool &)> sample_fn_t;
   struct value_struct {
     double value;
