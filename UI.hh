@@ -178,30 +178,11 @@ private:
   /** Update current notebook page, see 'update_page_xxx()' member
    * functions; called UI_UPDATE_PAGE_HZ times per sec.
    */
-  bool update_page() {
-    sigc::bound_mem_functor1<void, UI, XR25Frame &> _fn[] = {
-        sigc::mem_fun(*this, &UI::update_page_diagnostic),
-        sigc::mem_fun(*this, &UI::update_page_plots),
-        sigc::mem_fun(*this, &UI::update_page_dashboard),
-    };
-
-    _last_recv_mutex.lock();
-    XR25Frame fra = _last_recv;
-    _last_recv_mutex.unlock();
-
-    _fn[_notebook->get_current_page()](fra);
-    return TRUE;
-  }
+  bool update_page();
 
   /** Update headerbar widgets; called UI_UPDATE_HEADER_HZ times per sec
    */
-  bool update_header() {
-    _hb_sync_err->set_text(std::to_string(_xr25reader.get_sync_err_count()));
-    _hb_fra_s->set_text(std::to_string(_xr25reader.get_frames_per_sec()));
-    _hb_is_sync->set_from_icon_name(_xr25reader.is_synchronized() ? "gtk-yes" : "gtk-no", Gtk::ICON_SIZE_BUTTON);
-    _hb->set_subtitle("Frame count: " + std::to_string(_xr25reader.get_fra_count()));
-    return TRUE;
-  }
+  bool update_header();
 
 public:
   /// The update frequency for notebook pages in the main window
@@ -209,66 +190,10 @@ public:
   /// The update frequency for widgets embedded in the window decoration
   static constexpr unsigned UI_UPDATE_HEADER_HZ = 1;
 
-  UI(Glib::RefPtr<Gtk::Application> _a, Glib::RefPtr<Gtk::Builder> _b, std::istream &_is, const XR25FrameParser &_p)
-      : _application(_a), _builder(_b), _xr25reader(_is,
-                                                    [this](const unsigned char c[], int l, XR25Frame &fra) {
-                                                      this->_last_recv_mutex.lock();
-                                                      this->_last_recv = fra;
-                                                      this->_last_recv_mutex.unlock();
-
-                                                      // call CairoTSPlots::sample() passing fra
-                                                      auto _ts = std::chrono::steady_clock::now();
-                                                      for (auto &i : _plot)
-                                                        i.sample(&fra, _ts);
-                                                    }),
-        _fp(_p), _last_recv() {
-    _builder->get_widget("mw_hb_sync_err", _hb_sync_err);
-    _builder->get_widget("mw_hb_fra_s", _hb_fra_s);
-    _builder->get_widget("mw_hb_is_sync", _hb_is_sync);
-    _builder->get_widget("mw_hb", _hb);
-    _builder->get_widget("mw_notebook", _notebook);
-
-    for (int i = 0; i < E_COUNT; i++)
-      _builder->get_widget("mw_e" + std::to_string(i), _entry[i]);
-    for (int i = 0; i < F_COUNT; i++)
-      _builder->get_widget("mw_f" + std::to_string(i), _flag[i]);
-  }
+  UI(Glib::RefPtr<Gtk::Application> _a, Glib::RefPtr<Gtk::Builder> _b, std::istream &_is, const XR25FrameParser &_p);
   ~UI() {}
 
-  void run() {
-    Gtk::Grid *dash_grid, *plot_grid;
-    _builder->get_widget("mw_dash_grid", dash_grid);
-    _builder->get_widget("mw_plot_grid", plot_grid);
-    attach_widgets_to_grid<CairoGauge>(dash_grid, _g_rect[GRID_DASHBOARD], _gauge);
-    attach_widgets_to_grid<CairoTSPlot>(plot_grid, _g_rect[GRID_PLOTS], _plot);
-
-    /* connect signals */
-    Glib::signal_timeout().connect(sigc::mem_fun(*this, &UI::update_page), 1000 / UI_UPDATE_PAGE_HZ);
-    Glib::signal_timeout().connect(sigc::mem_fun(*this, &UI::update_header), 1000 / UI_UPDATE_HEADER_HZ);
-    Gtk::Button *about_button = nullptr;
-    _builder->get_widget("mw_about_button", about_button);
-    about_button->signal_clicked().connect([this]() {
-      Gtk::AboutDialog *ad = nullptr;
-      _builder->get_widget("about_dialog", ad);
-      ad->set_version(XR25DIAG_VERSION);
-      ad->run(), ad->hide();
-    });
-    Gtk::CheckButton *hud = nullptr;
-    _builder->get_widget("mw_hud", hud);
-    hud->signal_toggled().connect([hud, this]() {
-      auto m = hud->get_active() ? Cairo::Matrix{1, 0, 0, -1, 0, 0} : Cairo::identity_matrix();
-      for (auto &i : _gauge)
-        i.set_transform_matrix(m);
-      for (auto &i : _plot)
-        i.set_transform_matrix(m);
-    });
-
-    _xr25reader.start(const_cast<XR25FrameParser &>(_fp));
-
-    Gtk::Window *main_window = nullptr;
-    _builder->get_widget("main_window", main_window);
-    _application->run(*main_window);
-  }
+  void run();
 };
 
 #endif /* UI_HH */

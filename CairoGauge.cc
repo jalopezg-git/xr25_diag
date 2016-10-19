@@ -83,3 +83,18 @@ bool CairoGauge::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
 
   return TRUE;
 }
+
+void CairoGauge::on_size_allocate(Gtk::Allocation &allocation) {
+  Gtk::Widget::on_size_allocate(allocation);
+  if (_background)
+    draw_background();
+}
+
+void CairoGauge::update(void *arg) {
+  auto v = _sample_fn(arg);
+  if (v != _value) {
+    _value = v;
+    get_window()->invalidate_rect(Gdk::Rectangle(0, 0, get_allocation().get_width(), get_allocation().get_height()),
+                                  FALSE);
+  }
+}

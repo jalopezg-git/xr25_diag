@@ -162,19 +162,11 @@ public:
   /** Read frames non-blocking; call stop() to cancel thread
    * @param parser The XR25FrameParser to use
    */
-  void start(XR25FrameParser &parser) {
-    if (!_thrd)
-      _thrd = std::make_unique<std::thread>([&parser, this]() { this->read_frames(parser); });
-  }
+  void start(XR25FrameParser &parser);
 
   /** Stop internal thread; see start()
    */
-  inline void stop() {
-    if (_thrd) {
-      pthread_cancel(_thrd->native_handle());
-      _thrd->join();
-    }
-  }
+  void stop();
 };
 
 #endif /* XR25STREAMREADER_HH */

@@ -40,11 +40,7 @@ protected:
   void draw_background(void);
 
   bool on_draw(const Cairo::RefPtr<Cairo::Context> &context) override;
-  void on_size_allocate(Gtk::Allocation &allocation) override {
-    Gtk::Widget::on_size_allocate(allocation);
-    if (_background)
-      draw_background();
-  }
+  void on_size_allocate(Gtk::Allocation &allocation);
 
 public:
   /** Construct a CairoGauge object
@@ -69,14 +65,7 @@ public:
   /** Call the @a fn function (constructor argument) and update gauge with
    * the returned value.
    */
-  void update(void *arg) {
-    auto v = _sample_fn(arg);
-    if (v != _value) {
-      _value = v;
-      get_window()->invalidate_rect(Gdk::Rectangle(0, 0, get_allocation().get_width(), get_allocation().get_height()),
-                                    FALSE);
-    }
-  }
+  void update(void *arg);
 
 protected:
   double angle_of(double value) { return 5 * M_PI_4 - (value / _value_max * 3 * M_PI_2); }

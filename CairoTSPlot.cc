@@ -130,3 +130,29 @@ bool CairoTSPlot::on_draw(const Cairo::RefPtr<Cairo::Context> &context) {
   context->stroke();
   return TRUE;
 }
+
+void CairoTSPlot::on_size_allocate(Gtk::Allocation &allocation) {
+  Gtk::Widget::on_size_allocate(allocation);
+  _data_height = allocation.get_height() - MARGIN_TOP - MARGIN_BOTTOM;
+  if (_background)
+    draw_background();
+}
+
+void CairoTSPlot::sample(void *arg, std::chrono::time_point<std::chrono::steady_clock> timepoint) {
+  std::chrono::duration<double> _diff = timepoint - _lasttimepoint;
+  bool hastimepoint = (_diff.count() >= 5.0f);
+  struct value_struct &_s = _circbuf_get(_data, _data_head.fetch_add(1));
+
+  _s.value = _sample_fn(arg, _s.is_alerted);
+  if ((_s.has_timepoint = hastimepoint))
+    _lasttimepoint = _s.timepoint = timepoint;
+  _data_changed = TRUE;
+}
+
+void CairoTSPlot::update() {
+  if (_data_changed) {
+    _data_changed = FALSE;
+    get_window()->invalidate_rect(Gdk::Rectangle(0, 0, get_allocation().get_width(), get_allocation().get_height()),
+                                  FALSE);
+  }
+}

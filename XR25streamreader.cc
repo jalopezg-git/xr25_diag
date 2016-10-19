@@ -21,6 +21,18 @@
 #include <tuple>
 #include <type_traits>
 
+void XR25StreamReader::start(XR25FrameParser &parser) {
+  if (!_thrd)
+    _thrd = std::make_unique<std::thread>([&parser, this]() { this->read_frames(parser); });
+}
+
+void XR25StreamReader::stop() {
+  if (_thrd) {
+    pthread_cancel(_thrd->native_handle());
+    _thrd->join();
+  }
+}
+
 /** Frame received handler.
  * @param parser The XR25FrameParser to use
  * @param c Translated frame (&quot;0xff 0xff&quot; replaced by &quot;0xff
