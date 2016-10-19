@@ -1,0 +1,87 @@
+% compile command line: `$ pdflatex hardware.tex`
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[siunitx]{circuitikz}
+\usepackage[margin=1in]{geometry}
+\usetikzlibrary{fit,arrows.meta,matrix,positioning}
+
+\title{xr25\_diag: hardware interface}
+\author{Javier Lopez-Gomez}
+\date{October 19, 2016}
+
+\begin{document}
+
+\maketitle
+\section{Introduction}
+This document briefly documents the hardware required to interface the ECU
+diagnostics port.
+For other instructions, see \texttt{README.md} in the parent directory.
+
+\section{Hardware}
+The hardware is based on a FTDI FT232RL RS232$\leftrightarrow$USB converter;
+off-the-shelve hardware can be used here, e.g. the Arduino Serial-to-USB mini.
+Hardware drivers are most likely bundled ad part of your GNU/Linux distribution.
+Thus, the device should appear as \texttt{/dev/ttyUSB0} or similar.
+In addition to the FT232RL, the circuit in figure \ref{fig_xr25circuit} is required
+to adapt the ECU voltage levels to the FT232RL inputs.
+The \texttt{RXD} input is to be connected to the FT232RL RXD pin.
+This schematic is provided for reference; other circuits can be found on the Internet.
+
+\begin{figure}[!h]
+  \ctikzset{bipoles/length=0.8cm}\centering
+  \begin{circuitikz}
+    % BC557
+    \draw (0,0) node[pnp,xscale=-1] (pnp1) {} (pnp1) node[xshift=-20pt] {BC557}
+    (0,3) node[vcc] {VCC} to [short] (0,2) node[circ] (circ1) {} to (pnp1.E)
+    (pnp1.B) to [short] (1,0) node [circ] (circ2) {} to [R=390] (3,0) to
+    % J1 and J2
+      [D*,name=d1] (4,0) to [short,-o] (6,0) node[anchor=west] {J1}
+      (d1.north) node[anchor=south] {1N4148}
+    (6,-1) node[anchor=west]{J2} to [short,o-] ++(-1,0) |- (5,-3) node[vee]{VSS}
+    % pnp1.B-pnp1.E resistor
+    (circ2) to [R=390] ++(0,2) -| (circ1)
+    % pnp1.C part
+    (pnp1.C) to [leD*] (0,-2) node[circ] (circ3) {} to [R=1k8] (0,-3) node[vee]
+      {VSS}
+    % RXD
+    (circ3) to [short,-o] ++ (-2,0) node[anchor=east] {RXD};
+  \end{circuitikz}
+  \caption{XR25 receiver schematic}\label{fig_xr25circuit}
+\end{figure}
+
+The \texttt{J1} and \texttt{J2} pins should be connected, respectively to pins $2$ and
+$9$ on the Renault 12-pin diagnostics port, as shown in figure \ref{fig_connector}.
+\begin{figure}[!h]
+  \tikzset{connector/.style={inner sep=3pt,draw,
+      column sep=3pt,row sep=3pt},
+    pin/.style={font=\large\ttfamily,draw},pin label/.style={font=\large,
+      color=black},
+    connector key/.style={draw,minimum height=6pt,minimum width=14pt,
+      node contents=,inner sep=0pt},
+    ,>={Latex[length=4pt]}}\centering
+
+  \begin{tikzpicture}[pin/.append style={minimum width=18pt,minimum height=14pt}
+      ,connector key/.append style={minimum height=3pt},
+      connector/.append style={
+        after node path={node (__tmp) [inner sep=0pt,fit=(\tikzlastnode)] {}
+          node[connector key,above=-0.1pt of __tmp.north,xshift=-21pt]
+          node[connector key,above=-0.1pt of __tmp.north,xshift=21pt]
+          node[connector key,below=0.1pt of __tmp.south]}}]
+   \matrix (con) [connector,matrix of nodes,nodes={pin}] {
+     1 & 2 & - \\
+     4 & 5 & 6 \\
+     7 & 8 & 9 \\
+     10&11 &12 \\
+   };
+   \foreach \i/\j/\k [count=\c] in {60/con-1-2/GND (J2),
+     11/con-1-3/Connector key,
+     -11/con-3-3/DATA (J1)} {
+     \node (pin\c) [pin label] at (\i:3cm) {\k};
+     \draw[<-,pin label] (\j) -- (pin\c);
+   };
+  \end{tikzpicture}
+  \caption{Renault 12-pin diagnostic connector (front view)}\label{fig_connector}
+\end{figure}
+
+\end{document}
