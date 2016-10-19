@@ -16,6 +16,7 @@
 #ifndef PARSERFACTORY_HH
 #define PARSERFACTORY_HH
 
+#include "Fenix1Parser.hh"
 #include "Fenix3Parser.hh"
 #include "Fenix52BParser.hh"
 #include "XR25streamreader.hh"
@@ -47,6 +48,7 @@ public:
  */
 const ParserFactory::ctor_funcs_t ParserFactory::_ctor_funcs = {
     REGISTER_TYPE(Fenix3Parser),
+    REGISTER_TYPE(Fenix1Parser),
     REGISTER_TYPE(Fenix52BParser),
 };
 
